@@ -405,7 +405,15 @@ int main() {
 				cin >> name;
 				cout << "Enter Score (1-1000): ";
 				cin >> score;
-
+				
+                                if(cin.fail()) {
+			          cin.clear();
+			          cin.clear();
+			          cin.ignore(1000, '\n');
+			          cout << "Invalid input, please enter a number between 1 and 1000.\n\n";
+				  break;
+				}
+				
 				cin.clear();
 				if(score < 1 || score > 1000) {
 					cout << "Invalid input for score, please enter a number between 1 and 1000.\n";
@@ -438,6 +446,14 @@ int main() {
 				cout << "Enter Score (1-1000): ";
 				cin >> score;
 
+				if(cin.fail()) {
+			          cin.clear();
+			          cin.clear();
+			          cin.ignore(1000, '\n');
+			          cout << "Invalid input, please enter a number between 1 and 1000.\n\n";
+				  break;
+				}
+					
 				if(score < 1 || score > 1000) {
 					cout << "Invalid input for score, please enter a number between 1 and 1000.\n\n";
 					break;
