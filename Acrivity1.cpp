@@ -410,7 +410,7 @@ int main() {
 			          cin.clear();
 			          cin.clear();
 			          cin.ignore(1000, '\n');
-			          cout << "Invalid input, please enter a number between 1 and 1000.\n\n";
+			          cout << "\nInvalid input, please enter a number between 1 and 1000.\n\n";
 				  break;
 				}
 				
@@ -450,7 +450,7 @@ int main() {
 			          cin.clear();
 			          cin.clear();
 			          cin.ignore(1000, '\n');
-			          cout << "Invalid input, please enter a number between 1 and 1000.\n\n";
+			          cout << "\nInvalid input, please enter a number between 1 and 1000.\n\n";
 				  break;
 				}
 					
