@@ -2,6 +2,9 @@
 #include <string>
 #include <fstream>
 #include <iomanip>
+#include <limits>
+#include <stdexcept>
+#include <sstream>  
 
 using namespace std;
 
@@ -326,214 +329,180 @@ public:
 	}
 };
 
-
+int getValidPositiveInteger(const string& prompt, int minValue, int maxValue) {
+    int value;
+    bool validInput = false;
+    string input;
+    
+    do {
+        try {
+            cout << prompt;
+            cin >> input;
+            
+            // Check if input contains only digits
+            for(size_t i = 0; i < input.length(); i++) {
+                if(!isdigit(input[i])) {
+                    throw invalid_argument("Input must contain only numbers.");
+                }
+            }
+            
+            // Convert string to integer using stringstream
+            stringstream ss(input);
+            ss >> value;
+            
+            // Check range
+            if (value < minValue || value > maxValue) {
+                stringstream error_msg;
+                error_msg << "Value must be between " << minValue << " and " << maxValue;
+                throw out_of_range(error_msg.str());
+            }
+            
+            validInput = true;
+            
+        } catch (const invalid_argument& e) {
+            cout << "\nError: Invalid input. Please enter only numbers or positive integers.\n\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        } catch (const out_of_range& e) {
+            cout << "\nError: " << e.what() << "\n\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (!validInput);
+    
+    return value;
+}
 
 
 
 int main() {
+    //Objects
+    LinkedList list;
+    Leaderboard ld;
 
-	//Objects
-	LinkedList list;
-	Leaderboard ld;
+    //Variables for the menu
+    int menu = 0;
+    bool loop = true;
 
-	//Variables for the menu
-	int menu = 0;
-	bool loop = true;
+    //Variables for the player inputs
+    int score;
+    string name;
 
-	//Variables for the player inputs
-	int score;
-	string name;
+    //Test Cases
+    ld.insert_score(560, "Taguiam");
+    ld.insert_score(420, "Laqui");
+    ld.insert_score(850, "Junio");
+    ld.insert_score(850, "Kyle");
+    ld.insert_score(667, "Aldrin");
+    ld.insert_score(705, "Duebean");
+    ld.insert_score(310, "Gonzales");
+    ld.insert_score(670, "Edra");
+    ld.insert_score(900, "Amiel");
+    ld.insert_score(1000, "Ric");
 
-	//Test Cases
-	ld.insert_score(560, "Taguiam");
-	ld.insert_score(420, "Laqui");
-	ld.insert_score(850, "Junio");
-	ld.insert_score(850, "Kyle");
-	ld.insert_score(667, "Aldrin");
-	ld.insert_score(705, "Duebean");
-	ld.insert_score(310, "Gonzales");
-	ld.insert_score(670, "Edra");
-	ld.insert_score(900, "Amiel");
-	ld.insert_score(1000, "Ric");
+    list.append(560, "Taguiam");
+    list.append(420, "Laqui");
+    list.append(850, "Junio");
+    list.append(850, "Kyle");
+    list.append(667, "Aldrin");
+    list.append(705, "Duebean");
+    list.append(310, "Gonzales");
+    list.append(670, "Edra");
+    list.append(900, "Amiel");
+    list.append(1000, "Ric");
 
-	list.append(560, "Taguiam");
-	list.append(420, "Laqui");
-	list.append(850, "Junio");
-	list.append(850, "Kyle");
-	list.append(667, "Aldrin");
-	list.append(705, "Duebean");
-	list.append(310, "Gonzales");
-	list.append(670, "Edra");
-	list.append(900, "Amiel");
-	list.append(1000, "Ric");
+    //MENU OPTIONS
+    while(loop) {
+        cout << "________________________________\n" << endl;
+        cout << "    GAME LEADERBOARD SYSTEM" << endl;
+        cout << "________________________________\n\n" << endl;
 
-	//MENU OPTIONS
-	while(loop) {
-		
+        cout << "MENU OPTIONS\n\n";
+        cout << "1. Add player score\n";
+        cout << "2. Update player score\n";
+        cout << "3. Display the top 10 scores\n";
+        cout << "4. Display the list of all scores\n";
+        cout << "5. Open the leaderboards file\n";
+        cout << "6. Exit program\n\n";
 
-		cout << "________________________________\n" << endl;
-		cout << "    GAME LEADERBOARD SYSTEM" << endl;
-		cout << "________________________________\n\n" << endl;
+        menu = getValidPositiveInteger("Enter here: ", 1, 6);
+        bool v_playerexist = false;
 
-		cout << "MENU OPTIONS\n\n";
-		cout << "1. Add player score\n";
-		cout << "2. Update player score\n";
-		cout << "3. Display the top 10 scores\n";
-		cout << "4. Display the list of all scores\n";
-		cout << "5. Open the leaderboards file\n";
-		cout << "6. Exit program\n\n";
+        switch(menu) {
+            case 1: {
+                cout << "Enter Player Name: ";
+                cin >> name;
+                score = getValidPositiveInteger("Enter Score (1-1000): ", 1, 1000);
+                
+                ld.insert_score(score, name);
+                v_playerexist = list.append(score, name);
+                
+                if(v_playerexist != true) {
+                    cout << "\nPlayer " << name << " score of " << score << " is inserted\n\n";
+                    ld.write_to_file();
+                    break;
+                }
+                cout << "\nPlayer " << name << " already exist\n";
+                cout << "Updating player score.......\n";
+                break;
+            }
 
-		cout << "Enter here : ";
-		cin >> menu;
-		
-		bool v_playerexist = false;
+            case 2: {
+                bool upt = false;
+                
+                if(v_playerexist != true) {
+                    cout << "Enter Player Name to Update Score: ";
+                    cin >> name;
+                    score = getValidPositiveInteger("Enter Score (1-1000): ", 1, 1000);
+                }
+            
+                list.update_score(name, score);
+                upt = ld.update_score(name, score);
 
-		if(cin.fail()) {
-			cin.clear();
-			cin.clear();
-			cin.ignore(1000, '\n');
-			cout << "Invalid input for menu options, please enter a number between 1 and 5.\n";
-		}
-		else {
+                if(upt) {
+                    ld.insert_score(score, name);
+                    ld.write_to_file();					
+                    break;
+                }
 
-			switch(menu) {
-			
-			case 1:{
+                int list_temp_score = list.get_scoretop10();
+                int heap_temp_score = ld.get_scoretop10();
 
+                if(list_temp_score > heap_temp_score) {
+                    name = list.get_nametop10();
+                    score = list.get_scoretop10();
+                    ld.insert_score(score, name);
+                }
 
-				cout << "Enter Player Name: ";
-				cin >> name;
-				cout << "Enter Score (1-1000): ";
-				cin >> score;
-				
-                                if(cin.fail()) {
-			          cin.clear();
-			          cin.clear();
-			          cin.ignore(1000, '\n');
-			          cout << "\nInvalid input, please enter a number between 1 and 1000.\n\n";
-				  break;
-				}
-				
-				cin.clear();
-				if(score < 1 || score > 1000) {
-					cout << "Invalid input for score, please enter a number between 1 and 1000.\n";
-					break;
-				}
-				
-				ld.insert_score(score, name);
-				
-				v_playerexist = list.append(score, name);
-				
-				if(v_playerexist != true){
-				
-					cout << "\nPlayer " << name << " score of " << score << " is inserted\n\n";
-					ld.write_to_file();
-					break;
+                cout << "Player " << name << " score of " << score << " is updated\n\n";
+                ld.write_to_file();
+                break;
+            }
 
-				}
-				cout << "\nPlayer " << name << " already exist\n";
-				cout << "Updating player score.......\n";
-}
+            case 3:
+                ld.display_top();
+                break;
 
-			case 2: {
+            case 4:
+                list.display();
+                break;
 
-				bool upt = false;
-				
-				if(v_playerexist != true){
-				
-				cout << "Enter Player Name to Update Score: ";
-				cin >> name;
-				cout << "Enter Score (1-1000): ";
-				cin >> score;
+            case 5: {
+                ld.write_to_file();
+                
+                ofstream createFile("leaderboard.txt", ios::app);
+                createFile.close();
 
-				if(cin.fail()) {
-			          cin.clear();
-			          cin.clear();
-			          cin.ignore(1000, '\n');
-			          cout << "\nInvalid input, please enter a number between 1 and 1000.\n\n";
-				  break;
-				}
-					
-				if(score < 1 || score > 1000) {
-					cout << "Invalid input for score, please enter a number between 1 and 1000.\n\n";
-					break;
-				}
-			}
-			
-				list.update_score(name, score);
-				upt = ld.update_score(name, score);
+                system("notepad leaderboard.txt");
+                break;
+            }
 
-				//if the player that is currently being updating doesn't exist in the leaderboards, we will insert the player and break from the case
-				if(upt) {
-					
-					ld.insert_score(score, name);
-					ld.write_to_file();					
-					break;
-				}
+            case 6:
+                cout << "\nExiting program......";
+                loop = false;
+                break;
+        }
+    }
 
-
-				//If the player exist in the leaderboards and the player score has been updated to a lower score, lower than the top 10
-				//we should update the leaderboards by getting the top 10 from the linkedlist, note that earlier we saw that the linkedlist is sorted in descending order
-
-
-				int list_temp_score = list.get_scoretop10();
-
-				int heap_temp_score = ld.get_scoretop10();
-
-				//The leaderboards will insert an existing player in the leaderboards if the top 10 in the leaderboards is not the same as in the top 10 in the linkedlist
-
-				if(list_temp_score > heap_temp_score) {
-					name = list.get_nametop10();
-					score = list.get_scoretop10();
-
-					ld.insert_score(score, name);
-				}
-
-				cout << "Player " << name << " score of " << score << " is updated\n\n";
-				
-				ld.write_to_file();
-				break;
-			}
-
-			case 3:
-
-				ld.display_top();
-				break;
-
-			case 4:
-
-				list.display();
-				break;
-
-			case 5: {
-				
-				ld.write_to_file();
-				
-				//validate if file exist
-				ofstream createFile("leaderboard.txt", ios::app);
-				createFile.close();
-
-				//Display file in notepad
-				system("notepad leaderboard.txt");
-				break;
-			}
-			case 6:
-				
-				cout << "\nExiting program......";
-				loop = false;
-				break;
-
-			default:
-				cout << "Invalid input for menu options, please enter a number between 1 and 5.\n";
-				break;
-
-			}
-
-		} // else end parenthesis
-	} // loop end parenthesis
-
-
-
-
-	return 0;
+    return 0;
 }
